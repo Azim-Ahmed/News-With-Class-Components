@@ -9,11 +9,11 @@ export const newsCategory = {
     sports: "sports"
 }
 
-const MAX_ITEM_PER_PAGE = 100;
+const MAX_ITEM_PER_PAGE = 5;
 
 export default class News {
 
-    constructor ( category) {
+    constructor(category) {
         this._category = category;
         this._searchTerm = '';
         this._pageSize = MAX_ITEM_PER_PAGE;
@@ -21,49 +21,72 @@ export default class News {
         this._totalPage = 1;
     }
 
-   async getNews(){
-try{
- const {data} =   await axios.get(this._getURL())
-this._totalPage = Math.ceil(data.totalResults /this._pageSize)
-return{
-    article: data.articles,
-    totalpage: this._totalPage,
-    currentPage:this._currentPage,
-    category: this._category,
-    totalResults: data.totalResults
-}
-} catch(e){
-    throw new Error(e)
-}
+    async getNews() {
+        try {
+            const { data } = await axios.get(this._getURL())
+            this._totalPage = Math.ceil(data.totalResults / this._pageSize)
+            return {
+                article: data.articles,
+                isNext: this._isNext(),
+                isPrevious: this._isPrevious(),
+                totalpage: this._totalPage,
+                currentPage: this._currentPage,
+                category: this._category,
+                totalResults: data.totalResults
+            }
+        } catch (e) {
+            throw new Error(e)
+        }
     }
 
-    next(){
+    next() {
+        if (this._isNext()) {
+            this._currentPage++;
+            return this.getNews()
+        }
+        return false;
 
     }
-    setCurrentPage(){
+    prev() {
+        if (this._isPrevious()) {
+            this._currentPage--;
+            return this.getNews()
+        }
+        return false;
+    }
+    setCurrentPage(pageNumber) {
+        if (pageNumber < 1 && pageNumber > this._totalPage) {
+            throw new Error("Invalid page number")
+        }
+        this._currentPage = pageNumber;
+        return this.getNews();
+
 
     }
 
-    changeCategory(){
-
+    changeCategory(category) {
+        this._category = category;
+        this._currentPage = 1;
+        return this.getNews();
     }
-    search(){
-
+    search(term) {
+        this._searchTerm = term;
+        return this.getNews();
     }
-    _getURL(){
+    _getURL() {
         let url = '/?'
-        if(this._category) url += `category=${this._category}`;
-        if(this._searchTerm) url += `&q=${this._searchTerm}`;
-        if(this._pageSize) url += `&pageSize=${this._pageSize}`;
-        if(this._currentPage) url += `&page=${this._currentPage}`;
+        if (this._category) url += `category=${this._category}`;
+        if (this._searchTerm) url += `&q=${this._searchTerm}`;
+        if (this._pageSize) url += `&pageSize=${this._pageSize}`;
+        if (this._currentPage) url += `&page=${this._currentPage}`;
         return url;
     }
 
-    isNext(){
-        return this._currentPage < this._totalpage;
+    _isNext() {
+        return this._currentPage < this._totalPage;
     }
 
-    isPrev(){
+    _isPrevious() {
         return this._currentPage > 1;
     }
 }

@@ -5,7 +5,7 @@ import { newsCategory } from '../../../News'
 class Header extends Component {
 
     state = {
-        searchTime: ''
+        searchTerm: ''
     }
 
     handleChange = (e) => {
@@ -15,7 +15,9 @@ class Header extends Component {
     }
 
     handleKeyPress = (e) => {
-        //Implement later 
+        if(e.key === 'Enter'){
+            this.props.search(this.state.searchTerm)
+        }
     }
     render() {
         const { category ,changeCategory} = this.props

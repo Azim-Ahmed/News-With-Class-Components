@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import './app.css'
 import Header from './components/Homes/Header/Header'
 import News, { newsCategory } from './News'
@@ -8,60 +7,124 @@ import Pagination from './components/Homes/Header/Pagination/Pagination'
 import Filtration from './components/Homes/Header/Pagination/Filtration/Filtration'
 import Loading from './components/Homes/Loading/Loading'
 
-
+const news = new News(newsCategory.technology)
 class App extends Component {
 
     state = {
-        news: [],
-        category: newsCategory.technology
+        data: {},
+        isLoading: true
     }
 
-    changeCategory = (category) => {
-        console.log(category);
-        this.setState({
-            category
-        })
-    }
 
 
     componentDidMount() {
-        // const url = `${process.env.REACT_APP_URL}?apikey=${process.env.REACT_APP_API}&category=${this.state.category}&pageSize=5`
-        // axios.get(url).then(response =>
-        //     this.setState({
-        //         news: response.data.articles
-        //     })
-        // )
-        //     .catch(error => console.log(error))
-        const news = new News (newsCategory.technology)
-        news.getNews().then(data =>{
-            console.log(data);
+        news.getNews()
+            .then(data => {
+                this.setState({ data, isLoading: false })
+            })
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
+    }
+
+    next = () => {
+        if (this.state.data.isNext) {
+            this.setState({ isLoading: true })
+        }
+        news.next()
+            .then(data => {
+                this.setState({ data, isLoading: false })
+            })
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
+    }
+    prev = () => {
+        if (this.state.data.isPrevious) {
+            this.setState({ isLoading: true })
+        }
+        news.prev()
+            .then(data => {
+                this.setState({ data, isLoading: false })
+            })
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
+    }
+
+    handlePageChange = value => {
+        this.setState({
+            data: {
+                ...this.state.data,
+                currentPage: Number.parseInt(value)
+            }
         })
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        //    if( this.state.category !== prevState.category){
-        //     const url = `${process.env.REACT_APP_URL}?apikey=${process.env.REACT_APP_API}&category=${this.state.category}&pageSize=5`
-        //     axios.get(url).then(response =>
-        //         this.setState({
-        //             news: response.data.articles
-        //         })
-        //     )
-        //         .catch(error => console.log(error))
-        //    }
-
+    changeCategory = category => {
+        this.setState({ isLoading: true })
+        news.changeCategory(category)
+            .then(data => this.setState({ data, isLoading: false }))
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
+    }
+    search = searchTerm => {
+        this.setState({ isLoading: true })
+        news.search(searchTerm)
+            .then(data => this.setState({ data, isLoading: false }))
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
     }
 
-    render() {
 
+    goToPage = () => {
+        this.setState({ isLoading: true })
+        news.setCurrentPage(this.state.data.currentPage)
+            .then(data => {
+                this.setState({ data, isLoading: false })
+            })
+            .catch(e => {
+                console.log(e);
+                alert("something went wrong")
+                this.setState({ isLoading: false })
+            })
+    }
+
+
+    render() {
+        const { article, isPrevious, isNext, category, totalResults, currentPage, totalpage } = this.state.data
         return (
             <div className="container">
                 <div className="row">
                     <div className="col-sm-6 offset-md-3">
-                        <Header changeCategory={this.changeCategory} category={this.state.category} />
-                        <Filtration />
-                        <NewsList news={this.state.news} />
-                        <Pagination />
-                        <Loading />
+                        <Header search={this.search} changeCategory={this.changeCategory} category={category} />
+                        <Filtration totalResults={totalResults} currentPage={currentPage} totalpage={totalpage} />
+                        {this.state.isLoading ? (<Loading />) : (<div>
+                            <NewsList news={article} />
+                            <Pagination
+                                next={this.next}
+                                prev={this.prev}
+                                isPrevious={isPrevious}
+                                isNext={isNext}
+                                totalpage={totalpage}
+                                currentPage={currentPage}
+                                goToPage={this.goToPage}
+                                handlePageChange={this.handlePageChange}
+                            />
+                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -71,36 +134,3 @@ class App extends Component {
 
 }
 export default App
-
-
-
-// import React from 'react'
-// import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-// import Home from './components/Home/Home';
-// import './app.css'
-// import Privacy from './components/Privacy/Privacy';
-// import Terms from './components/Terms/Terms';
-// import NotFound from './components/NotFound/NotFound';
-
-// const App = () => {
-//     return (
-//         <Router>
-//             <Switch>
-//                 <Route exact path="/">
-//                     <Home />
-//                 </Route>
-//                 <Route path="/privacy">
-//                     <Privacy />
-//                 </Route>
-//                 <Route path="/terms">
-//                     <Terms />
-//                 </Route>
-//                 <Route path="*">
-//                     <NotFound />
-//                 </Route>
-//             </Switch>
-//         </Router>
-//     )
-// }
-
-// export default App

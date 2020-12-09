@@ -2,13 +2,15 @@ import React, { Component } from 'react';
 
 class Filtration extends Component {
     render() {
+
+        const {totalResults, totalpage, currentPage} = this.props;
         return (
             <div className="d-flex ">
                 <p className="text-black-50">
-                    About {0} result found 
+                    About {totalResults} result found 
                     </p>
                     <p className="text-black-50 ml-auto">
-                    {1} page of {100}
+                    {currentPage} page of {totalpage}
                     </p>
             </div>
         );
