@@ -8,23 +8,29 @@ class Header extends Component {
         searchTerm: ''
     }
 
+
+
     handleChange = (e) => {
         //Implement 
-        this.setState({searchTerm : e.target.value})
+        this.setState({ searchTerm: e.target.value })
 
     }
 
     handleKeyPress = (e) => {
-        if(e.key === 'Enter'){
+        if (e.key === 'Enter') {
             this.props.search(this.state.searchTerm)
         }
     }
+
+    // componentDidMount() {
+        
+    // }
     render() {
-        const { category ,changeCategory} = this.props
+        const { category, changeCategory } = this.props
         return (
             <div className="my-4">
                 <h1 className="mb-4">Block Buster Headlines</h1>
-                <input type="search"
+                <input ref={this.props.innerRef} type="search"
                     className="form-control"
                     placeholder="Type anything to get update and search"
                     value={this.props.searchterm}
@@ -37,13 +43,13 @@ class Header extends Component {
                         newsCategory && Object.keys(newsCategory).map((item, i) => {
                             if (category == newsCategory[item]) {
                                 return (
-                                    <button onClick={() => {changeCategory(newsCategory[item])}} className="btn btn-sm btn-warning mr-2 mb-2" key ={i}>
+                                    <button onClick={() => { changeCategory(newsCategory[item]) }} className="btn btn-sm btn-warning mr-2 mb-2" key={i}>
                                         {`#${newsCategory[item]}`}
                                     </button>
                                 )
                             }
                             return (
-                                <button onClick={() => {changeCategory(newsCategory[item])}} className="btn btn-sm btn-light mr-2 mb-2" key ={i}>
+                                <button onClick={() => { changeCategory(newsCategory[item]) }} className="btn btn-sm btn-light mr-2 mb-2" key={i}>
                                     {`#${newsCategory[item]}`}
                                 </button>
                             )
@@ -56,4 +62,6 @@ class Header extends Component {
     }
 }
 
-export default Header;
+
+
+export default React.forwardRef((props, ref) => <Header {...props} innerRef={ref}/>);

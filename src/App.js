@@ -6,6 +6,7 @@ import NewsList from './components/Homes/NewsList/NewsList.jsx'
 import Pagination from './components/Homes/Header/Pagination/Pagination'
 import Filtration from './components/Homes/Header/Pagination/Filtration/Filtration'
 import Loading from './components/Homes/Loading/Loading'
+import MainPart from './components/Homes/MainPart/MainPart'
 
 const news = new News(newsCategory.technology)
 class App extends Component {
@@ -15,7 +16,8 @@ class App extends Component {
         isLoading: true
     }
 
-
+aboutResult = React.createRef()
+searchRef = React.createRef()
 
     componentDidMount() {
         news.getNews()
@@ -27,6 +29,10 @@ class App extends Component {
                 alert("something went wrong")
                 this.setState({ isLoading: false })
             })
+
+            //using Ref
+            //console.dir(this.aboutResult.current);
+            this.searchRef.current.focus();
     }
 
     next = () => {
@@ -102,15 +108,21 @@ class App extends Component {
             })
     }
 
+    goToTop = () => {
+window.scroll(0, this.aboutResult.current.scrollTop)
+    }
+
 
     render() {
         const { article, isPrevious, isNext, category, totalResults, currentPage, totalpage } = this.state.data
+
+        
         return (
             <div className="container">
                 <div className="row">
                     <div className="col-sm-6 offset-md-3">
-                        <Header search={this.search} changeCategory={this.changeCategory} category={category} />
-                        <Filtration totalResults={totalResults} currentPage={currentPage} totalpage={totalpage} />
+                        <Header ref={this.searchRef} search={this.search} changeCategory={this.changeCategory} category={category} />
+                        <Filtration ref={this.aboutResult} totalResults={totalResults} currentPage={currentPage} totalpage={totalpage} />
                         {this.state.isLoading ? (<Loading />) : (<div>
                             <NewsList news={article} />
                             <Pagination
@@ -123,8 +135,12 @@ class App extends Component {
                                 goToPage={this.goToPage}
                                 handlePageChange={this.handlePageChange}
                             />
+                            <button className="btn btn-dark my-5"
+                            onClick={this.goToTop}
+                            >Go to Top</button>
                         </div>
                         )}
+                        <MainPart/>
                     </div>
                 </div>
             </div>
